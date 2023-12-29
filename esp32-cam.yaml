@@ -1,0 +1,57 @@
+# Basic Config
+# https://www.banggood.com/Geekcreit-ESP32-CAM-WiFi-bluetooth-Camera-Module-Development-Board-ESP32-With-Camera-Module-OV2640-p-1394679.html
+esphome:
+  name: espcam
+  platform: ESP32
+  board: esp32dev
+  name_add_mac_suffix: true
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password  
+
+logger:
+  #level: INFO
+api:
+  #encryption:
+  #  key: !secret api_encryption_key
+
+ota:
+  password: "ota_password"
+
+esp32_camera:
+  external_clock:
+    pin: GPIO0
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO26
+    scl: GPIO27
+  data_pins: [GPIO5, GPIO18, GPIO19, GPIO21, GPIO36, GPIO39, GPIO34, GPIO35]
+
+  # the order of the data_pins is significant, don't mix up the order
+
+  vsync_pin: GPIO25
+  href_pin: GPIO23
+  pixel_clock_pin: GPIO22
+  power_down_pin: GPIO32
+  resolution: 1600x1200
+  #resolution: 160x120
+  #resolution: 320x240
+  #resolution: 400x296
+  #resolution: 640x480
+  #resolution: 800x600
+  #max_framerate: 30fps
+  #max_framerate: 1fps
+  name: esp_cam
+  idle_framerate: 0.1fps
+
+
+output:
+  - platform: ledc
+    pin: GPIO4
+    channel: 2 # channel 1 is used for esp32_camera
+    id: led
+light:
+  - platform: monochromatic
+    output: led
+    name: espcam light

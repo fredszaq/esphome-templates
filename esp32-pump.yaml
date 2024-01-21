@@ -1,0 +1,154 @@
+# Basic Config
+# https://www.banggood.com/Geekcreit-ESP32-CAM-WiFi-bluetooth-Camera-Module-Development-Board-ESP32-With-Camera-Module-OV2640-p-1394679.html
+esphome:
+  name: esppump
+  platform: ESP32
+  board: esp32dev
+  name_add_mac_suffix: true
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password  
+  ap: {}
+
+logger:
+  #level: INFO
+api:
+  #encryption:
+  #  key: !secret api_encryption_key
+
+ota:
+  password: "ota_password"
+
+switch:
+  - platform: gpio
+    pin: 
+      number: GPIO18
+      inverted: true
+    id: btn_on_off
+    name: "On/Off"
+    icon: "mdi:power"
+    on_turn_on:
+    - delay: 500ms
+    - switch.turn_off: btn_on_off
+  - platform: gpio
+    pin: 
+      number: GPIO19
+      inverted: true
+    id: btn_pause
+    name: "Pause"
+    icon: "mdi:pause"
+    on_turn_on:
+    - delay: 500ms
+    - switch.turn_off: btn_pause  
+  - platform: gpio
+    pin: 
+      number: GPIO22
+      inverted: true
+    id: btn_plus
+    name: "+"
+    icon: "mdi:plus"
+    on_turn_on:
+    - delay: 500ms
+    - switch.turn_off: btn_plus
+  - platform: gpio
+    pin: 
+      number: GPIO23
+      inverted: true
+    id: btn_minus
+    name: "-"
+    icon: "mdi:minus"
+    on_turn_on:
+    - delay: 500ms
+    - switch.turn_off: btn_minus
+    
+   
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO32
+      inverted: true
+    name: "Speed 1"
+    id: "speed1"
+    icon: "mdi:numeric-1-circle"
+    filters:
+      - delayed_off: 1000ms
+  - platform: gpio
+    pin:
+      number: GPIO33
+      inverted: true
+    name: "Speed 2"
+    id: "speed2"
+    icon: "mdi:numeric-2-circle"
+    filters:
+      - delayed_off: 1000ms
+  - platform: gpio
+    pin:
+      number: GPIO34
+      inverted: true
+    name: "Speed 3"
+    id: "speed3"
+    icon: "mdi:numeric-3-circle"
+    filters:
+      - delayed_off: 1000ms
+  - platform: gpio
+    pin:
+      number: GPIO35
+      inverted: true
+    name: "Speed 4"
+    id: "speed4"
+    icon: "mdi:numeric-4-circle"
+    filters:
+      - delayed_off: 1000ms
+  - platform: gpio
+    pin:
+      number: GPIO25
+      inverted: true
+    name: "Speed 5"
+    id: "speed5"
+    icon: "mdi:numeric-5-circle"
+    filters:
+      - delayed_off: 1000ms
+  - platform: gpio
+    pin:
+      number: GPIO36
+      inverted: true
+    name: "Pause 15min"
+    id: "pause15min"
+    icon: "mdi:timer-pause"
+    filters:
+      - delayed_off: 1000ms
+  - platform: gpio
+    pin:
+      number: GPIO39
+      inverted: true
+    name: "Pause 60min"
+    id: "pause60min"
+    icon: "mdi:timer-pause"
+    filters:
+      - delayed_off: 1000ms
+
+
+sensor:
+  - platform: template
+    name: Speed
+    id: speed
+    icon: "mdi:speedometer"
+    update_interval: 1s
+    lambda: |-
+      if (id(pause15min).state || id(pause60min).state) {
+        return 0.0;
+      } else if (id(speed5).state) {
+        return 5.0;
+      } else if (id(speed4).state) {
+        return 4.0;
+      } else if (id(speed3).state) {
+        return 3.0;
+      } else if (id(speed2).state) {
+        return 2.0;
+      } else if (id(speed1).state) {
+        return 1.0;
+      } else {
+        return 0.0;
+      }
+      

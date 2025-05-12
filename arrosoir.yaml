@@ -47,10 +47,10 @@ time:
   - platform: homeassistant
     id: homeassistant_time
     
-deep_sleep:
-  run_duration: 40s
-  sleep_duration: 10min
-  id: preserve_battery
+#deep_sleep:
+#  run_duration: 40s
+#  sleep_duration: 10min
+#  id: preserve_battery
 
 switch:
   - platform: gpio
@@ -60,20 +60,20 @@ switch:
     restore_mode: ALWAYS_OFF
     id: relay
     name: "${device_name} Relay"
-    on_turn_on:
-     - deep_sleep.prevent: preserve_battery
-    on_turn_off:
-     - deep_sleep.allow: preserve_battery
+#    on_turn_on:
+#     - deep_sleep.prevent: preserve_battery
+#    on_turn_off:
+#     - deep_sleep.allow: preserve_battery
 
-  - platform: template
-    name: "Prevent deep sleep"
-    icon: "mdi:sleep-off"
-    restore_mode: RESTORE_DEFAULT_OFF
-    optimistic: true
-    turn_on_action:
-     - deep_sleep.prevent: preserve_battery
-    turn_off_action:
-     - deep_sleep.allow: preserve_battery
+#  - platform: template
+#    name: "Prevent deep sleep"
+#    icon: "mdi:sleep-off"
+#    restore_mode: RESTORE_DEFAULT_OFF
+#    optimistic: true
+#    turn_on_action:
+#     - deep_sleep.prevent: preserve_battery
+#    turn_off_action:
+#     - deep_sleep.allow: preserve_battery
 
 
 sensor:

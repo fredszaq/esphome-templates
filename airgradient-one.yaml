@@ -13,7 +13,7 @@
 substitutions:
   devicename: "airgradient-one"
   upper_devicename: "AG One"
-  ag_esphome_config_version: 0.1.0
+  ag_esphome_config_version: 0.2.0
 
 esphome:
   name: "${devicename}"
@@ -22,6 +22,8 @@ esphome:
 
 esp32:
   board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
 
 # Disable logging
 # https://esphome.io/components/logger.html
@@ -210,7 +212,17 @@ sensor:
                   blue: 0%
         - if:
             condition:
-                lambda: 'return !id(enable_strip).state && id(co2).state < 1500;'
+                lambda: 'return id(co2).state <1500 && id(humidity).state < 35;'
+            then:
+              - light.turn_on:
+                  id: led_strip
+                  brightness: 100%
+                  red: 0%
+                  green: 0%
+                  blue: 100%
+        - if:
+            condition:
+                lambda: 'return !id(enable_strip).state && id(co2).state < 1500 && id(humidity).state >= 35; '
             then:
               - light.turn_off:
                   id: led_strip
@@ -361,44 +373,62 @@ display:
       #     it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
       #     it.printf(0, 48, id(poppins_light), "NOx:");
       #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(nox).state);   
-      - id: summary3
+      # - id: summary3
+      #   lambda: |-
+      #     it.printf(0, 0, id(poppins_light), "PM0.3:");
+      #     it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f /dL", id(pm_0_3um).state);
+      #     it.printf(0, 16, id(poppins_light), "PM1.0:");
+      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_1_0).state);
+      #     it.printf(0, 32, id(poppins_light), "PM2.5:");
+      #     it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_2_5).state);
+      #     it.printf(0, 48, id(poppins_light), "PM10:");
+      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_10_0).state);
+      # - id: summary4
+      #   lambda: |-
+      #     it.printf(0, 0, id(poppins_light), "CO2:");
+      #     it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
+      #     it.printf(0, 16, id(poppins_light), "PM2.5:");
+      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f AQI", id(pm_2_5_aqi).state);
+      #     it.printf(0, 32, id(poppins_light), "VOC:");
+      #     it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
+      #     it.printf(0, 48, id(poppins_light), "NOx:");
+      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(nox).state);  
+      # - id: summary5
+      #   lambda: |-
+      #     it.printf(0, 0, id(poppins_light), "In temp:");
+      #     if (id(display_in_f).state) {
+      #       it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°F", id(temp).state*9/5+32);
+      #     } else {
+      #       it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°C", id(temp).state);
+      #     }
+      #     it.printf(0, 16, id(poppins_light), "In hum:");
+      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(humidity).state);
+      #     it.printf(0, 32, id(poppins_light), "Out temp:");
+      #     if (id(display_in_f).state) {
+      #       it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°F", id(exterior_temp).state*9/5+32);
+      #     } else {
+      #       it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°C", id(exterior_temp).state);
+      #     }
+      #     it.printf(0, 48, id(poppins_light), "Out hum:");
+      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(exterior_humidity).state);  
+          
+      - id: summary6
         lambda: |-
-          it.printf(0, 0, id(poppins_light), "PM0.3:");
-          it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f /dL", id(pm_0_3um).state);
-          it.printf(0, 16, id(poppins_light), "PM1.0:");
-          it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_1_0).state);
+          if (id(display_in_f).state) {
+            it.printf(0, 0, id(poppins_light), TextAlign::TOP_LEFT, "%.1f°F", id(temp).state*9/5+32);
+          } else {
+            it.printf(0, 0, id(poppins_light), TextAlign::TOP_LEFT, "%.1f°C", id(temp).state);
+          }
+          it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(humidity).state);
+          it.printf(0, 16, id(poppins_light), "CO2:");
+          it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
           it.printf(0, 32, id(poppins_light), "PM2.5:");
-          it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_2_5).state);
-          it.printf(0, 48, id(poppins_light), "PM10:");
-          it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_10_0).state);
-      - id: summary4
-        lambda: |-
-          it.printf(0, 0, id(poppins_light), "CO2:");
-          it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
-          it.printf(0, 16, id(poppins_light), "PM2.5:");
-          it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f AQI", id(pm_2_5_aqi).state);
-          it.printf(0, 32, id(poppins_light), "VOC:");
-          it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
-          it.printf(0, 48, id(poppins_light), "NOx:");
+          it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f AQI", id(pm_2_5_aqi).state);
+          it.printf(0, 48, id(poppins_light), "VOC:");
+          it.printf(63, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
+          it.printf(65, 48, id(poppins_light), "NOx:");
           it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(nox).state);  
-      - id: summary5
-        lambda: |-
-          it.printf(0, 0, id(poppins_light), "In temp:");
-          if (id(display_in_f).state) {
-            it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°F", id(temp).state*9/5+32);
-          } else {
-            it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°C", id(temp).state);
-          }
-          it.printf(0, 16, id(poppins_light), "In hum:");
-          it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(humidity).state);
-          it.printf(0, 32, id(poppins_light), "Out temp:");
-          if (id(display_in_f).state) {
-            it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°F", id(exterior_temp).state*9/5+32);
-          } else {
-            it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°C", id(exterior_temp).state);
-          }
-          it.printf(0, 48, id(poppins_light), "Out hum:");
-          it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(exterior_humidity).state);  
+          
       # - id: air_quality
       #   lambda: |-
       #     it.printf(0, 6, id(ubuntu), "CO2");
@@ -475,11 +505,11 @@ button:
       then:
         - senseair.abc_disable: senseair_s8
 
-output:
-  - platform: gpio
+# output:
+#   - platform: gpio
     # Watchdog to reboot if no activity
-    id: watchdog
-    pin: GPIO2
+#     id: watchdog
+#     pin: GPIO2
 
 light:
     # https://esphome.io/components/light/esp32_rmt_led_strip.html
@@ -487,7 +517,7 @@ light:
     rgb_order: GRB
     pin: GPIO10  # Pin 16
     num_leds: 11
-    rmt_channel: 0
+    #rmt_channel: 0
     chipset: ws2812
     name: "LED Strip"
     id: led_strip
@@ -498,12 +528,12 @@ http_request:
 
 
 interval:
-  - interval: 30s
+  # - interval: 30s
     # Notify watchdog device is still alive
-    then:
-      - output.turn_on: watchdog
-      - delay: 20ms
-      - output.turn_off: watchdog
+  #   then:
+  #     - output.turn_on: watchdog
+  #     - delay: 20ms
+  #     - output.turn_off: watchdog
 
   - interval: 10s
     # Automatically switch to the next page every five seconds

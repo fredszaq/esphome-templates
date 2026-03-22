@@ -544,7 +544,6 @@ interval:
               lambda: 'return id(device_uptime).state < 10;'
           then:
             - display.page.show: boot
-            - lambda: id(device_uptime).set_update_interval(1);
           else:
             # Change page on display
             - display.page.show_next: oled_display

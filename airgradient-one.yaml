@@ -36,6 +36,7 @@ logger:
 api:
 
 ota:
+  - platform: esphome
 
 wifi:
   ssid: !secret wifi_ssid
@@ -505,11 +506,11 @@ button:
       then:
         - senseair.abc_disable: senseair_s8
 
-# output:
-#   - platform: gpio
+output:
+  - platform: gpio
     # Watchdog to reboot if no activity
-#     id: watchdog
-#     pin: GPIO2
+    id: hw_watchdog
+    pin: GPIO2
 
 light:
     # https://esphome.io/components/light/esp32_rmt_led_strip.html
@@ -528,12 +529,12 @@ http_request:
 
 
 interval:
-  # - interval: 30s
-    # Notify watchdog device is still alive
-  #   then:
-  #     - output.turn_on: watchdog
-  #     - delay: 20ms
-  #     - output.turn_off: watchdog
+  - interval: 30s
+    # Notify hw_watchdog device is still alive
+    then:
+      - output.turn_on: hw_watchdog
+      - delay: 20ms
+      - output.turn_off: hw_watchdog
 
   - interval: 10s
     # Automatically switch to the next page every five seconds

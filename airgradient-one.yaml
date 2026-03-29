@@ -213,7 +213,7 @@ sensor:
                   blue: 0%
         - if:
             condition:
-                lambda: 'return id(co2).state <1500 && id(humidity).state < 35;'
+                lambda: 'return id(co2).state <1500 && id(humidity).state < 30;'
             then:
               - light.turn_on:
                   id: led_strip
@@ -223,7 +223,7 @@ sensor:
                   blue: 100%
         - if:
             condition:
-                lambda: 'return !id(enable_strip).state && id(co2).state < 1500 && id(humidity).state >= 35; '
+                lambda: 'return !id(enable_strip).state && id(co2).state < 1500 && id(humidity).state >= 30; '
             then:
               - light.turn_off:
                   id: led_strip

@@ -18,7 +18,7 @@ substitutions:
 esphome:
   name: "${devicename}"
   friendly_name: "${upper_devicename}"
-  name_add_mac_suffix: true  # Set to false if you don't want part of the MAC address in the name
+  name_add_mac_suffix: true
 
 esp32:
   board: esp32-c3-devkitm-1
@@ -265,16 +265,6 @@ sensor:
       id: humidity
     address: 0x44
 
-  # - platform: sht3xd
-  #   # SHT30 https://esphome.io/components/sensor/sht3xd.html
-  #   temperature:
-  #     name: "Temperature"
-  #     id: temp
-  #   humidity:
-  #     name: "Humidity"
-  #     id: humidity
-  #   address: 0x44
-  #   heater_enabled: false  # Only enable if in conditions that may have high condensation
 
   - platform: wifi_signal
     name: "WiFi Signal"
@@ -294,7 +284,7 @@ sensor:
     nox:
       name: "NOx Index"
       id: nox
-    compensation:  # Remove this block if no temp/humidity sensor present for compensation
+    compensation:
       temperature_source: temp
       humidity_source: humidity
 
@@ -323,24 +313,6 @@ font:
     size: 7
     glyphs: '!"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/µ³'
 
-  - file:
-      type: web
-      url: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/master/fonts/materialdesignicons-webfont.ttf"
-    id: mdi_20
-    size: 20
-    glyphs:
-      - "\U000F058E"   # water-percent        (humidity)
-      - "\U000F07E4"   # molecule-co2         (CO2)
-      - "\U000F0504"   # temperature-celsius  (°C unit)
-      
-  - file:
-      type: web
-      url: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/master/fonts/materialdesignicons-webfont.ttf"
-    id: mdi_30
-    size: 30
-    glyphs:
-      - "\U000F06A1"   # home-outline       (interior)
-      - "\U000F0599"   # weather-sunny      (exterior)
 
 display:
   - platform: ssd1306_i2c
@@ -348,7 +320,14 @@ display:
     id: oled_display
     address: 0x3C
     pages:
-      - id: interior
+      - id: boot
+        lambda: |-
+          it.printf(0, 0, id(poppins_light), "ID:");
+          it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%s", get_mac_address().c_str());
+          it.printf(0, 21, id(poppins_light), "Config Ver: $ag_esphome_config_version");
+          it.printf(0, 42, id(poppins_light), "$upper_devicename");
+
+      - id: status
         lambda: |-
 
           it.printf(32,  0, id(poppins_light),  TextAlign::TOP_CENTER, "%.1f °C", id(temp).state);
@@ -371,12 +350,6 @@ display:
           it.printf(95,  48, id(poppins_light_small), TextAlign::TOP_RIGHT, "NOx");
           it.printf(127, 48, id(poppins_light),       TextAlign::TOP_RIGHT, "%.0f", id(nox).state);
 
-      - id: boot
-        lambda: |-
-          it.printf(0, 0, id(poppins_light), "ID:");
-          it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%s", get_mac_address().c_str());
-          it.printf(0, 21, id(poppins_light), "Config Ver: $ag_esphome_config_version");
-          it.printf(0, 42, id(poppins_light), "$upper_devicename");
 
     on_page_change:
       to: boot
@@ -427,10 +400,6 @@ light:
     chipset: ws2812
     name: "LED Strip"
     id: led_strip
-
-http_request:
-  # Used to support POST request to send data to AirGradient
-  # https://esphome.io/components/http_request.html
 
 
 interval:

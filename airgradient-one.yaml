@@ -74,12 +74,6 @@ switch:
     name: "Flash Mode (Safe Mode)"
     icon: "mdi:cellphone-arrow-down"
   - platform: template
-    name: "Display Temperature in °F"
-    icon: "mdi:thermometer"
-    id: display_in_f
-    restore_mode: RESTORE_DEFAULT_OFF
-    optimistic: True
-  - platform: template
     name: "Enable strip"
     id: enable_strip
     icon: "mdi:led-strip"
@@ -304,24 +298,7 @@ sensor:
       temperature_source: temp
       humidity_source: humidity
 
-
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: GPIO9
-      mode: INPUT_PULLUP
-    name: "Display in °F"
-    id: display_toggle_button
-    on_release:
-      then:
-        - switch.toggle: display_in_f
-
-
 font:
-    # Font to use on the display
-    # Open Source font Liberation Sans by Red Hat
-    # https://www.dafont.com/liberation-sans.font
-  # - file: "./fonts/liberation_sans/LiberationSans-Regular.ttf"
   - file:
       type: gfonts
       family: Poppins
@@ -329,142 +306,71 @@ font:
     id: poppins_light
     size: 14
     glyphs: '!"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/µ³'
+
   - file:
       type: gfonts
       family: Poppins
       weight: light
-    id: poppins_light_12
-    size: 12
+    id: poppins_light_small
+    size: 9
     glyphs: '!"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/µ³'
-  - file: "gfonts://Ubuntu Mono"
-    id: ubuntu
-    size: 22
+    
+  - file:
+      type: gfonts
+      family: Poppins
+      weight: light
+    id: poppins_light_xsmall
+    size: 7
     glyphs: '!"%()+=,-_.:°0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz/µ³'
 
+  - file:
+      type: web
+      url: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/master/fonts/materialdesignicons-webfont.ttf"
+    id: mdi_20
+    size: 20
+    glyphs:
+      - "\U000F058E"   # water-percent        (humidity)
+      - "\U000F07E4"   # molecule-co2         (CO2)
+      - "\U000F0504"   # temperature-celsius  (°C unit)
+      
+  - file:
+      type: web
+      url: "https://raw.githubusercontent.com/Templarian/MaterialDesign-Webfont/master/fonts/materialdesignicons-webfont.ttf"
+    id: mdi_30
+    size: 30
+    glyphs:
+      - "\U000F06A1"   # home-outline       (interior)
+      - "\U000F0599"   # weather-sunny      (exterior)
+
 display:
-  # https://esphome.io/components/display/ssd1306.html
-  # Formatting reference: https://www.tutorialspoint.com/c_standard_library/c_function_printf.htm
   - platform: ssd1306_i2c
     model: "SH1106 128x64"
     id: oled_display
     address: 0x3C
-    # rotation: 180°
     pages:
-      # - id: summary1
-      #   lambda: |-
-      #     it.printf(0, 0, id(poppins_light), "CO2:");
-      #     it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
-      #     it.printf(0, 16, id(poppins_light), "PM2.5:");
-      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_2_5).state);
-      #     it.printf(0, 32, id(poppins_light), "Temp:");
-      #     if (id(display_in_f).state) {
-      #       it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°F", id(temp).state*9/5+32);
-      #     } else {
-      #       it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°C", id(temp).state);
-      #     }
-      #     it.printf(0, 48, id(poppins_light), "Humidity:");
-      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f%%", id(humidity).state);
-      # - id: summary2
-      #   lambda: |-
-      #     it.printf(0, 0, id(poppins_light), "CO2:");
-      #     it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
-      #     it.printf(0, 16, id(poppins_light), "PM2.5:");
-      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_2_5).state);
-      #     it.printf(0, 32, id(poppins_light), "VOC:");
-      #     it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
-      #     it.printf(0, 48, id(poppins_light), "NOx:");
-      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(nox).state);   
-      # - id: summary3
-      #   lambda: |-
-      #     it.printf(0, 0, id(poppins_light), "PM0.3:");
-      #     it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f /dL", id(pm_0_3um).state);
-      #     it.printf(0, 16, id(poppins_light), "PM1.0:");
-      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_1_0).state);
-      #     it.printf(0, 32, id(poppins_light), "PM2.5:");
-      #     it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_2_5).state);
-      #     it.printf(0, 48, id(poppins_light), "PM10:");
-      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_10_0).state);
-      # - id: summary4
-      #   lambda: |-
-      #     it.printf(0, 0, id(poppins_light), "CO2:");
-      #     it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
-      #     it.printf(0, 16, id(poppins_light), "PM2.5:");
-      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f AQI", id(pm_2_5_aqi).state);
-      #     it.printf(0, 32, id(poppins_light), "VOC:");
-      #     it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
-      #     it.printf(0, 48, id(poppins_light), "NOx:");
-      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(nox).state);  
-      # - id: summary5
-      #   lambda: |-
-      #     it.printf(0, 0, id(poppins_light), "In temp:");
-      #     if (id(display_in_f).state) {
-      #       it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°F", id(temp).state*9/5+32);
-      #     } else {
-      #       it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°C", id(temp).state);
-      #     }
-      #     it.printf(0, 16, id(poppins_light), "In hum:");
-      #     it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(humidity).state);
-      #     it.printf(0, 32, id(poppins_light), "Out temp:");
-      #     if (id(display_in_f).state) {
-      #       it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°F", id(exterior_temp).state*9/5+32);
-      #     } else {
-      #       it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.1f°C", id(exterior_temp).state);
-      #     }
-      #     it.printf(0, 48, id(poppins_light), "Out hum:");
-      #     it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(exterior_humidity).state);  
-          
-      - id: summary6
+      - id: interior
         lambda: |-
-          if (id(display_in_f).state) {
-            it.printf(0, 0, id(poppins_light), TextAlign::TOP_LEFT, "%.1f°F", id(temp).state*9/5+32);
-          } else {
-            it.printf(0, 0, id(poppins_light), TextAlign::TOP_LEFT, "%.1f°C", id(temp).state);
-          }
-          it.printf(128, 0, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f%%", id(humidity).state);
-          it.printf(0, 16, id(poppins_light), "CO2:");
-          it.printf(128, 16, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
-          it.printf(0, 32, id(poppins_light), "PM2.5:");
-          it.printf(128, 32, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f AQI", id(pm_2_5_aqi).state);
-          it.printf(0, 48, id(poppins_light), "VOC:");
-          it.printf(63, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
-          it.printf(65, 48, id(poppins_light), "NOx:");
-          it.printf(128, 48, id(poppins_light), TextAlign::TOP_RIGHT, "%.0f", id(nox).state);  
-          
-      # - id: air_quality
-      #   lambda: |-
-      #     it.printf(0, 6, id(ubuntu), "CO2");
-      #     it.printf(128, 6, id(ubuntu), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
-      #     it.printf(0, 34, id(ubuntu), "PM2");
-      #     it.printf(128, 34, id(ubuntu), TextAlign::TOP_RIGHT, "%.0f µg/m³", id(pm_2_5).state);
-      # - id: air_temp
-      #   lambda: |-
-      #     it.printf(0, 6, id(ubuntu), "Temp");
-      #     if (id(display_in_f).state) {
-      #       it.printf(128, 6, id(ubuntu), TextAlign::TOP_RIGHT, "%.1f°F", id(temp).state*9/5+32);
-      #     } else {
-      #       it.printf(128, 6, id(ubuntu), TextAlign::TOP_RIGHT, "%.1f°C", id(temp).state);
-      #     }
-      #     it.printf(0, 34, id(ubuntu), "Humid");
-      #     it.printf(128, 34, id(ubuntu), TextAlign::TOP_RIGHT, "%.1f%%", id(humidity).state);
-      # - id: tvoc
-      #   lambda: |-
-      #     it.printf(0, 6, id(ubuntu), "VOC:");
-      #     it.printf(128, 6, id(ubuntu), TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
-      #     it.printf(0, 34, id(ubuntu), "NOx:");
-      #     it.printf(128, 34, id(ubuntu), TextAlign::TOP_RIGHT, "%.0f", id(nox).state);
-      # - id: combo
-      #   lambda: |-
-      #     if (id(display_in_f).state) {
-      #       it.printf(0, 0, id(poppins_light_12), "%.1f °F", id(temp).state*9/5+32);
-      #     } else {
-      #       it.printf(0, 0, id(poppins_light_12), "%.1f °C", id(temp).state);
-      #     }
-      #     it.printf(128, 0, id(poppins_light_12), TextAlign::TOP_RIGHT, "%.1f%%", id(humidity).state);
-      #     it.printf(0, 16, id(poppins_light_12), "%.0f µg", id(pm_2_5).state);
-      #     it.printf(128, 16, id(poppins_light_12), TextAlign::TOP_RIGHT, "%.0f ppm", id(co2).state);
-      #     it.printf(0, 32, id(poppins_light_12), "VOC: %.0f", id(voc).state);
-      #     it.printf(128, 32, id(poppins_light_12), TextAlign::TOP_RIGHT, "NOx: %.0f", id(nox).state);
-      #     it.printf(0, 48, id(poppins_light_12), "AQI: %.0f", id(pm_2_5_aqi).state);
+
+          it.printf(32,  0, id(poppins_light),  TextAlign::TOP_CENTER, "%.1f °C", id(temp).state);
+          it.printf(32, 16, id(poppins_light),  TextAlign::TOP_CENTER, "%.0f %%", id(humidity).state);
+
+          it.printf(96,  0, id(poppins_light), TextAlign::TOP_CENTER, "%.1f °C", id(exterior_temp).state);
+          it.printf(96, 16, id(poppins_light), TextAlign::TOP_CENTER, "%.0f %%", id(exterior_humidity).state);
+
+          it.printf(0,   32, id(poppins_light_small),  TextAlign::TOP_LEFT, "CO");
+          it.printf(16,  36, id(poppins_light_xsmall), TextAlign::TOP_LEFT, "2");
+          it.printf(58,  32, id(poppins_light),        TextAlign::TOP_RIGHT, "%.0f", id(co2).state);
+          it.printf(60,  32, id(poppins_light_xsmall), TextAlign::TOP_LEFT,  "p");
+          it.printf(63,  36, id(poppins_light_xsmall), TextAlign::TOP_LEFT,  "p");
+          it.printf(66,  40, id(poppins_light_xsmall), TextAlign::TOP_LEFT,  "m");
+          it.printf(95,  32, id(poppins_light_small),  TextAlign::TOP_RIGHT,  "AQI");
+          it.printf(127, 32, id(poppins_light),        TextAlign::TOP_RIGHT, "%.0f", id(pm_2_5_aqi).state);
+
+          it.printf(24,  48, id(poppins_light_small), TextAlign::TOP_RIGHT, "VOC");
+          it.printf(58,  48, id(poppins_light),       TextAlign::TOP_RIGHT, "%.0f", id(voc).state);
+          it.printf(95,  48, id(poppins_light_small), TextAlign::TOP_RIGHT, "NOx");
+          it.printf(127, 48, id(poppins_light),       TextAlign::TOP_RIGHT, "%.0f", id(nox).state);
+
       - id: boot
         lambda: |-
           it.printf(0, 0, id(poppins_light), "ID:");
@@ -476,9 +382,8 @@ display:
       to: boot
       then:
         - if:
-            # Skip the boot page after initial boot
             condition:
-                lambda: 'return id(device_uptime).state > 30;'
+              lambda: 'return id(device_uptime).state > 20;'
             then:
               - display.page.show_next: oled_display
               - component.update: oled_display
@@ -536,7 +441,7 @@ interval:
       - delay: 20ms
       - output.turn_off: hw_watchdog
 
-  - interval: 10s
+  - interval: 5s
     # Automatically switch to the next page every five seconds
     then:
       - if:
